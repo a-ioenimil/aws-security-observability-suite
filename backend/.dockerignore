@@ -1,0 +1,30 @@
+# Ignore Python-specific files and directories
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+.venv/
+
+# IDE and editor files
+.idea/
+.vscode/
+
+# Git files
+.git/
+.gitignore
+.dockerignore
+
+# Environment variables
+.env
+.env.*
+
+# Build artifacts and caches
+build/
+dist/
+target/
+*.log
