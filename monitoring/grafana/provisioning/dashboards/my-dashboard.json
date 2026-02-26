@@ -81,22 +81,22 @@
       "datasource": { "type": "prometheus", "uid": "Prometheus" },
       "fieldConfig": {
         "defaults": {
-          "max": 100,
+          "max": 1,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
               { "color": "green", "value": null },
-              { "color": "orange", "value": 2 },
-              { "color": "red", "value": 5 }
+              { "color": "orange", "value": 0.02 },
+              { "color": "red", "value": 0.05 }
             ]
           },
-          "unit": "percent"
+          "unit": "percentunit"
         }
       },
       "targets": [
         {
-          "expr": "(sum(rate(http_server_duration_milliseconds_count{http_status_code=~\"5..\"}[5m])) / sum(rate(http_server_duration_milliseconds_count[5m]))) * 100 or vector(0)",
+          "expr": "(sum(increase(http_server_duration_milliseconds_count{http_target!=\"/metrics\", http_status_code=~\"5..\"}[5m])) / sum(increase(http_server_duration_milliseconds_count{http_target!=\"/metrics\"}[5m]))) or vector(0)",
           "refId": "A"
         }
       ]
