@@ -32,7 +32,6 @@ aws ecr get-login-password --region "${AWS_REGION}" | sudo docker login --userna
 echo "Pulling latest image: ${IMAGE}"
 sudo docker pull "${IMAGE}"
 
-# 3. (Docker Compose installation moved to user_data.sh)
 
 # 4. Start the stack using Docker Compose
 echo "Starting stack with Docker Compose..."

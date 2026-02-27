@@ -75,7 +75,20 @@ pipeline {
                     
                     // Transfer the monitoring stack configuration
                     sh "scp -o StrictHostKeyChecking=no -r monitoring/* ec2-user@${APP_HOST_IP}:/home/ec2-user/monitoring/"
-                    sh "scp -o StrictHostKeyChecking=no monitoring/.env ec2-user@${APP_HOST_IP}:/home/ec2-user/monitoring/.env || true"
+
+                    // Dynamically generate the .env file with Jenkins credentials and transfer it
+                    withCredentials([
+                        string(credentialsId: 'slack-webhook-url', variable: 'SLACK_WEBHOOK_URL'),
+                        string(credentialsId: 'slack-member-id', variable: 'SLACK_MEMBER_ID')
+                    ]) {
+                        sh '''
+                        echo "SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}" > monitoring/.env
+                        echo "SLACK_MEMBER_ID=${SLACK_MEMBER_ID}" >> monitoring/.env
+                        '''
+                        sh "scp -o StrictHostKeyChecking=no monitoring/.env ec2-user@${APP_HOST_IP}:/home/ec2-user/monitoring/.env || true"
+                        // Clean up the local .env immediately after transfer to prevent secrets from lingering in workspace
+                        sh "rm -f monitoring/.env"
+                    }
 
                     // Transfer the deploy script from ci-scripts
                     sh "scp -o StrictHostKeyChecking=no ci-scripts/deploy.sh ec2-user@${APP_HOST_IP}:/home/ec2-user/deploy.sh"
