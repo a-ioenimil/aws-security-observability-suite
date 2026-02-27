@@ -3,13 +3,18 @@ groups:
     rules:
       - alert: FastApiHighErrorRate
         expr: |
-          sum(rate(http_requests_total{service="fastapi", status=~"5.."}[5m])) 
-          / 
-          sum(rate(http_requests_total{service="fastapi"}[5m])) > 0.05
-        for: 2m
+          (
+            sum(rate(http_server_duration_milliseconds_count{job="backend", http_status_code=~"5.."}[5m])) or vector(0)
+          )
+          /
+          (
+            sum(rate(http_server_duration_milliseconds_count{job="backend"}[5m])) > 0
+          )
+          > 0.05
+        for: 1m
         labels:
           severity: critical
           service: fastapi
         annotations:
           summary: "FastAPI High Error Rate"
-          description: "The HTTP error rate for FastAPI has exceeded 5% over the last 5 minutes."
+          description: "Error rate is {{ humanizePercentage $value }} — exceeded 5% threshold over the last 5 minutes."

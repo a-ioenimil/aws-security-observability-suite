@@ -22,7 +22,8 @@ services:
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        envsubst < /etc/alertmanager/alertmanager.tmpl > /etc/alertmanager/alertmanager.yml && \
+        sed -e "s|\$$SLACK_WEBHOOK_URL|$${SLACK_WEBHOOK_URL}|g" -e "s|\$$SLACK_MEMBER_ID|$${SLACK_MEMBER_ID}|g" /etc/alertmanager/alertmanager.tmpl > /etc/alertmanager/alertmanager.yml && \
+        cat /etc/alertmanager/alertmanager.yml && \
         /bin/alertmanager --config.file=/etc/alertmanager/alertmanager.yml
 
   node-exporter:
@@ -47,6 +48,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/rules.yml:/etc/prometheus/rules.yml
       - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
