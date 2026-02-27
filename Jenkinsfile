@@ -70,6 +70,13 @@ pipeline {
                 }
 
                 sshagent(['app-host-ssh-key']) {
+                    // Create the monitoring directory on remote host
+                    sh "ssh -o StrictHostKeyChecking=no ec2-user@${APP_HOST_IP} 'mkdir -p /home/ec2-user/monitoring'"
+                    
+                    // Transfer the monitoring stack configuration
+                    sh "scp -o StrictHostKeyChecking=no -r monitoring/* ec2-user@${APP_HOST_IP}:/home/ec2-user/monitoring/"
+                    sh "scp -o StrictHostKeyChecking=no monitoring/.env ec2-user@${APP_HOST_IP}:/home/ec2-user/monitoring/.env || true"
+
                     // Transfer the deploy script from ci-scripts
                     sh "scp -o StrictHostKeyChecking=no ci-scripts/deploy.sh ec2-user@${APP_HOST_IP}:/home/ec2-user/deploy.sh"
                     

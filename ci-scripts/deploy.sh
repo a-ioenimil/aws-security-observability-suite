@@ -28,31 +28,25 @@ done
 echo "Authenticating with ECR..."
 aws ecr get-login-password --region "${AWS_REGION}" | sudo docker login --username AWS --password-stdin "${ECR_REGISTRY}"
 
-# 2. Pull the latest image
+# 2. Pull the latest monitoring images
 echo "Pulling latest image: ${IMAGE}"
 sudo docker pull "${IMAGE}"
 
-# 3. Stop the existing container if running
-echo "Stopping existing container..."
-sudo docker stop backend-api || true
-sudo docker rm backend-api || true
+# 3. (Docker Compose installation moved to user_data.sh)
 
-# 4. Start the new container
-echo "Starting new container..."
-sudo docker run -d \
-    --name backend-api \
-    --restart unless-stopped \
-    -p 80:5000 \
-    "${IMAGE}"
+# 4. Start the stack using Docker Compose
+echo "Starting stack with Docker Compose..."
+cd /home/ec2-user/monitoring
+sudo BACKEND_IMAGE="${IMAGE}" docker compose up -d
 
-# 5. Verify the container is running
-echo "Verifying container status..."
-sleep 3
-if [ "$(sudo docker inspect -f '{{.State.Running}}' backend-api)" = "true" ]; then
+# 5. Verify the backend container is running
+echo "Verifying backend container status..."
+sleep 5
+if [ "$(sudo docker inspect -f '{{.State.Running}}' monitoring-backend-1 || sudo docker inspect -f '{{.State.Running}}' backend)" = "true" ]; then
     echo "Deployment Successful! Application is running."
 else
-    echo "Deployment Failed! Container is not running."
-    sudo docker logs backend-api
+    echo "Deployment Failed! Backend container is not running."
+    sudo docker compose logs backend
     exit 1
 fi
 

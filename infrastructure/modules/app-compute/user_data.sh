@@ -26,7 +26,13 @@ systemctl enable --now docker
 # Add ec2-user to the docker group
 usermod -aG docker ec2-user
 
-# 4. Install AWS CLI v2
+# 4. Install Docker Compose plugin
+echo "Installing Docker Compose v2..."
+mkdir -p /usr/local/lib/docker/cli-plugins/
+curl -SL https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64 -o /usr/local/lib/docker/cli-plugins/docker-compose
+chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+
+# 5. Install AWS CLI v2
 echo "Downloading and installing AWS CLI v2..."
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
 # Use -q (quiet) to prevent massive log spam from unzip
