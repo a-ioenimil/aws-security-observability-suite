@@ -37,3 +37,13 @@ output "jenkins_agents_asg_name" {
   description = "Name of the Jenkins agents Auto Scaling Group"
   value       = module.jenkins-agent-spot-compute.autoscaling_group_name
 }
+
+output "guardduty_detector_id" {
+  description = "The ID of the GuardDuty detector"
+  value       = module.account-security.guardduty_detector_id
+}
+
+output "cloudtrail_arn" {
+  description = "The ARN of the CloudTrail"
+  value       = module.account-security.cloudtrail_arn
+}

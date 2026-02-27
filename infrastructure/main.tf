@@ -76,3 +76,11 @@ module "alb" {
   environment       = var.environment
   project_name      = var.project_name
 }
+
+module "account-security" {
+  source = "./modules/account-security"
+
+  project_name = var.project_name
+  environment  = var.environment
+}
+

@@ -34,9 +34,6 @@ sudo docker pull "${IMAGE}"
 
 
 # 4. Start the stack using Docker Compose
-echo "Cleaning up legacy standalone container if it exists..."
-sudo docker rm -f backend-api || true
-
 echo "Starting stack with Docker Compose..."
 cd /home/ec2-user/monitoring
 sudo BACKEND_IMAGE="${IMAGE}" docker compose up -d
