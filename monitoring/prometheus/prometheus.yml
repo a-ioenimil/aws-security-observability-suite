@@ -2,6 +2,14 @@ global:
   scrape_interval: 4s
   evaluation_interval: 4s
 
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+rule_files:
+  - 'rules.yml'
+
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:

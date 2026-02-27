@@ -9,6 +9,22 @@ services:
       - "5000:5000"
     restart: always
 
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
+    restart: unless-stopped
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.tmpl:ro
+    env_file:
+      - .env
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        envsubst < /etc/alertmanager/alertmanager.tmpl > /etc/alertmanager/alertmanager.yml && \
+        /bin/alertmanager --config.file=/etc/alertmanager/alertmanager.yml
+
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter

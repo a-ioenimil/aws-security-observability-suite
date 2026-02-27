@@ -66,4 +66,4 @@ aws-amali-cli_accessKeys.csv
 
 #keys
 infrastructure/whoami-service-dev-key
-infrastructure/whoami-service-dev-key.pub
+infrastructure/whoami-service-dev-key.pubmonitoring/.env

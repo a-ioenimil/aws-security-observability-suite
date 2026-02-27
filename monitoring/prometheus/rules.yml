@@ -1,0 +1,15 @@
+groups:
+  - name: fastapi_alerts
+    rules:
+      - alert: FastApiHighErrorRate
+        expr: |
+          sum(rate(http_requests_total{service="fastapi", status=~"5.."}[5m])) 
+          / 
+          sum(rate(http_requests_total{service="fastapi"}[5m])) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          service: fastapi
+        annotations:
+          summary: "FastAPI High Error Rate"
+          description: "The HTTP error rate for FastAPI has exceeded 5% over the last 5 minutes."
