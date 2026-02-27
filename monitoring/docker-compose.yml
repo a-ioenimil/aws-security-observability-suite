@@ -1,5 +1,14 @@
 version: '3.8'
 
+x-logging: &default-logging
+  driver: awslogs
+  options:
+    awslogs-region: "eu-west-1"
+    awslogs-group: "/ec2/app-host/observability-suite"
+    awslogs-create-group: "true"
+    mode: "non-blocking"
+    max-buffer-size: "4m"
+
 services:
   backend:
     build:
@@ -8,6 +17,7 @@ services:
     ports:
       - "5000:5000"
     restart: always
+    logging: *default-logging
 
   alertmanager:
     image: prom/alertmanager:latest
@@ -25,6 +35,7 @@ services:
         sed -e "s|\$$SLACK_WEBHOOK_URL|$${SLACK_WEBHOOK_URL}|g" -e "s|\$$SLACK_MEMBER_ID|$${SLACK_MEMBER_ID}|g" /etc/alertmanager/alertmanager.tmpl > /etc/alertmanager/alertmanager.yml && \
         cat /etc/alertmanager/alertmanager.yml && \
         /bin/alertmanager --config.file=/etc/alertmanager/alertmanager.yml
+    logging: *default-logging
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -41,6 +52,7 @@ services:
       - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
     ports:
       - "9100:9100"
+    logging: *default-logging
 
   prometheus:
     image: prom/prometheus:latest
@@ -59,6 +71,7 @@ services:
       - '--web.enable-lifecycle'
     ports:
       - "9090:9090"
+    logging: *default-logging
 
   grafana:
     image: grafana/grafana:latest
@@ -72,6 +85,7 @@ services:
       - "3000:3000"
     depends_on:
       - prometheus
+    logging: *default-logging
 
 volumes:
   prometheus_data:

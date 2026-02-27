@@ -245,6 +245,11 @@ resource "aws_iam_role_policy_attachment" "app_host_ecr_read" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
 }
 
+resource "aws_iam_role_policy_attachment" "app_host_cloudwatch_logs" {
+  role       = aws_iam_role.app_host_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
 resource "aws_iam_instance_profile" "app_host_instance_profile" {
   name = "${var.project_name}-${var.environment}-app-host-profile"
   role = aws_iam_role.app_host_role.name
