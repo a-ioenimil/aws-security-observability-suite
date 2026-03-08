@@ -8,6 +8,7 @@ from diagrams.aws.general import User, InternetAlt1
 from diagrams.onprem.vcs import Git
 from diagrams.onprem.ci import Jenkins
 from diagrams.onprem.monitoring import Prometheus, Grafana
+from diagrams.onprem.tracing import Jaeger
 from diagrams.saas.chat import Slack
 from diagrams.programming.framework import Fastapi
 from diagrams.generic.os import LinuxGeneral
@@ -58,7 +59,7 @@ with Diagram(
             ecr = ECR("Amazon ECR\n(Docker Registry)")
 
         with Cluster("VPC", graph_attr={"bgcolor": "#E8F4F8", "style": "solid", "pencolor": "#3F8624"}):
-            alb = ALB("Application Load Balancer\n(Ports 80, 3000, 9090,\n9093, 9100)")
+            alb = ALB("Application Load Balancer\n(Ports 80, 3000, 9090,\n9093, 16686)")
 
             with Cluster("Public Subnet", graph_attr={"bgcolor": "#D4E6F1", "pencolor": "#4A90E2"}):
                 with Cluster("Jenkins Cluster"):
@@ -77,6 +78,7 @@ with Diagram(
                         prometheus = Prometheus("Prometheus\n(:9090)")
                         alertmanager = Prometheus("Alertmanager\n(:9093)") 
                         node_exporter = LinuxGeneral("Node Exporter\n(:9100)")
+                        jaeger = Jaeger("Jaeger\n(:16686 UI\n:4318 OTLP)")
 
     # Data Flows (Edges)
 
@@ -97,7 +99,10 @@ with Diagram(
     alb >> Edge(color="orange", style="bold", label="Port 3000") >> grafana
     alb >> Edge(color="orange", style="bold", label="Port 9090") >> prometheus
     alb >> Edge(color="orange", style="bold", label="Port 9093") >> alertmanager
-    alb >> Edge(color="orange", style="bold", label="Port 9100") >> node_exporter
+    alb >> Edge(color="orange", style="bold", label="Port 16686") >> jaeger
+
+    # 4. Tracing Flow
+    fastapi >> Edge(color="purple", style="dotted", label="Exports OTLP Traces (:4318)") >> jaeger
 
     # 4. Metrics Flow
     prometheus >> Edge(color="firebrick", style="dashed", label="Scrapes API (:80)") >> fastapi

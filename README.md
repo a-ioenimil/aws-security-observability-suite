@@ -13,13 +13,14 @@ The infrastructure is broken down into modular deployment layers:
     *   **Jenkins Spot Agents (ASG)**: Dynamic EC2 Spot Instances provisioned on-demand in a Private Subnet (via EC2 Fleet Plugin) to run isolated Docker builds and tests.
     *   **Amazon ECR**: Private container registry for secure storage of application Docker images.
 2.  **Application & Observability Layer (Private Subnets)**
-    *   **Application Load Balancer (ALB)**: Public-facing entry point routing traffic to internal services securely across defined ports (`80`, `3000`, `9090`, `9093`, `9100`).
+    *   **Application Load Balancer (ALB)**: Public-facing entry point routing traffic to internal services securely across defined ports (`80`, `3000`, `9090`, `9093`, `16686`).
     *   **App Compute Host (EC2)**: Runs the application via a unified `docker-compose` stack:
-        *   **FastAPI Backend**: Core application service.
+        *   **FastAPI Backend**: Core application service instrumented with OpenTelemetry.
         *   **Prometheus**: Scrapes metrics from the API and underlying infrastructure.
-        *   **Grafana**: Visualizes metrics centrally.
+        *   **Jaeger**: Collects and visualizes distributed traces via OTLP.
+        *   **Grafana**: Visualizes metrics and traces centrally.
         *   **Alertmanager**: Triggers notifications for system anomaly thresholds.
-        *   **Node Exporter**: Exposes robust system-level hardware and OS metrics.
+        *   **Node Exporter**: Exposes robust system-level hardware and OS metrics (Internal only).
 3.  **AWS Security & Logging Layer (Global/Regional)**
     *   **AWS CloudTrail**: Records automated and manual AWS API call history into an S3 bucket with strict lifecycle policies (30-day IA / 90-day delete).
     *   **AWS GuardDuty**: Intelligent threat detection monitoring the VPC and AWS Account.
@@ -46,7 +47,7 @@ The infrastructure is broken down into modular deployment layers:
 *   **CI/CD Pipeline**: Jenkins, Jenkins EC2 Fleet Plugin
 *   **Containerization**: Docker, Docker Compose, Amazon ECR
 *   **Backend framework**: Python, FastAPI
-*   **Observability**: Prometheus, Grafana, Alertmanager, Node Exporter
+*   **Observability**: Prometheus, Grafana, Alertmanager, Node Exporter, Jaeger, OpenTelemetry
 *   **Security & Audit**: AWS CloudTrail, AWS GuardDuty, AWS CloudWatch
 
 ## Getting Started
@@ -108,7 +109,7 @@ Access your tools via the mapped ALB ports:
 | **Grafana** | `3000` | `http://<ALB-DNS>:3000` |
 | **Prometheus** | `9090` | `http://<ALB-DNS>:9090` |
 | **Alertmanager**| `9093` | `http://<ALB-DNS>:9093` |
-| **Node Exporter**| `9100` | `http://<ALB-DNS>:9100/metrics` |
+| **Jaeger UI**| `16686` | `http://<ALB-DNS>:16686` |
 
 *(Note: In a true production environment, it is highly recommended to attach an ACM Certificate to the ALB for secure HTTPS/SSL termination instead of raw ports).*
 
@@ -145,26 +146,3 @@ The following visual evidence demonstrates the successful deployment and active 
 *Specific raw cloudwatch log stream snippet detailing application states.*
 ![Stream Log Output](./assets/images/stream-log-output.png)
 
-## Screenshots & Observability Evidence
-
-The following visual evidence demonstrates the successful deployment and active monitoring of the solution:
-
-### Grafana Dashboard
-*Unified dashboard displaying Prometheus metrics, latency, CPU utilization, and more.*
-![Grafana Dashboard](./assets/images/graffana-dashboard.png)
-
-### Prometheus Alerts
-*Prometheus alerting UI displaying configured threshold conditions.*
-![Prometheus Alerts](./assets/images/prometheus-alert-tab.png)
-
-### Alertmanager Triggered Error
-*Example of a triggered alert being successfully captured during an anomaly event.*
-![Error Alert Triggered](./assets/images/error-alert-triggered.png)
-
-### CloudWatch Log Stream
-*Centralized AWS CloudWatch logging stream output captured from the containerized services.*
-![CloudWatch Log Stream](./assets/images/cloud-watch-log-stream.png)
-
-### Stream Log Output
-*Specific raw cloudwatch log stream snippet detailing application states.*
-![Stream Log Output](./assets/images/stream-log-output.png)
