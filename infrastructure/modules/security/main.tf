@@ -41,12 +41,13 @@ resource "aws_security_group" "alb_sg" {
     description = "Alertmanager"
   }
 
+
   ingress {
-    from_port   = 9100
-    to_port     = 9100
+    from_port   = 16686
+    to_port     = 16686
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-    description = "Node Exporter"
+    description = "Jaeger UI"
   }
 
   egress {
@@ -161,6 +162,14 @@ resource "aws_security_group" "app_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     description = "Node Exporter"
+  }
+
+  ingress {
+    from_port       = 16686
+    to_port         = 16686
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
+    description     = "Jaeger UI"
   }
 
   egress {

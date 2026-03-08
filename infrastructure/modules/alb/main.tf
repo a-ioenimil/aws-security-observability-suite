@@ -168,10 +168,10 @@ resource "aws_lb_target_group_attachment" "alertmanager_attachment" {
   port             = 9093
 }
 
-# --- Node Exporter (9100) ---
-resource "aws_lb_target_group" "node_exporter_tg" {
-  name        = substr("${var.project_name}-${var.environment}-node-tg", 0, 32)
-  port        = 9100
+# --- Jaeger UI (16686) ---
+resource "aws_lb_target_group" "jaeger_tg" {
+  name        = substr("${var.project_name}-${var.environment}-jaeg-tg", 0, 32)
+  port        = 16686
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "instance"
@@ -189,18 +189,18 @@ resource "aws_lb_target_group" "node_exporter_tg" {
   }
 }
 
-resource "aws_lb_listener" "node_exporter_listener" {
+resource "aws_lb_listener" "jaeger_listener" {
   load_balancer_arn = aws_lb.app_alb.arn
-  port              = 9100
+  port              = 16686
   protocol          = "HTTP"
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.node_exporter_tg.arn
+    target_group_arn = aws_lb_target_group.jaeger_tg.arn
   }
 }
 
-resource "aws_lb_target_group_attachment" "node_exporter_attachment" {
-  target_group_arn = aws_lb_target_group.node_exporter_tg.arn
+resource "aws_lb_target_group_attachment" "jaeger_attachment" {
+  target_group_arn = aws_lb_target_group.jaeger_tg.arn
   target_id        = var.app_instance_id
-  port             = 9100
+  port             = 16686
 }

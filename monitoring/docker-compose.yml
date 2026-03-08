@@ -17,7 +17,23 @@ services:
     image: ${BACKEND_IMAGE:-monitoring-backend}
     ports:
       - "80:5000"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://jaeger:4318/v1/traces
+      - OTEL_SERVICE_NAME=whoami-service
     restart: always
+    logging: *default-logging
+    depends_on:
+      - jaeger
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    restart: unless-stopped
+    ports:
+      - "16686:16686" # UI
+      - "4317:4317" # OTLP gRPC receiver
+      - "4318:4318" # OTLP HTTP receiver
     logging: *default-logging
 
   alertmanager:

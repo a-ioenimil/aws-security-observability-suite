@@ -18,3 +18,14 @@ groups:
         annotations:
           summary: "FastAPI High Error Rate"
           description: "Error rate is {{ humanizePercentage $value }} — exceeded 5% threshold over the last 5 minutes."
+
+      - alert: FastApiHighLatency
+        expr: |
+          histogram_quantile(0.90, sum by (le) (rate(http_server_duration_milliseconds_bucket{job="backend"}[5m]))) > 300
+        for: 1m
+        labels:
+          severity: critical
+          service: fastapi
+        annotations:
+          summary: "FastAPI High Latency"
+          description: "P90 Latency is {{ $value }}ms — exceeded 300ms threshold over the last 5 minutes."
